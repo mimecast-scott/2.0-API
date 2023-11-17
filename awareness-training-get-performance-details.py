@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 AUTH_URL = 'https://api.services.mimecast.com/oauth/token'
 API_URL = 'https://api.services.mimecast.com/api/awareness-training/company/get-performance-details'
@@ -68,6 +69,10 @@ def main(auth_url=AUTH_URL,client_id=CLIENT_ID,client_secret=CLIENT_SECRET,api_u
             if e.response.status_code == 401:
                 # If the token is expired, refresh it
                 bearer_token = get_bearer_token(auth_url, client_id, client_secret)
+            elif e.response.status_code == 429:
+                backOffTime = 60 # default backoff time to handle server side rate limiting
+                # Some code to get X-RateLimit-Reset response header and set backOffTime to this value
+                time.sleep(backOffTime)
             else:
                 # Handle other HTTP errors
                 print(f"HTTP Error: {e}")
