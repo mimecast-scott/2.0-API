@@ -17,16 +17,19 @@ const getAuthToken = {
   }
 };
 
-var getToken = true;
+var getToken = false;
+var expiryBuffer = 60 // seconds before expiry time that key will be requested from auth api. i.e. don't leave it until its about to expire.
 
 if (!pm.environment.get('2.0_expires_in') ||
     !pm.environment.get('2.0_access_token')) {
     console.log('Mime 2.0 Token or expiry date are missing');
-} else if (pm.environment.get('2.0_expires_in') <= (new Date()).getTime()) {
+} else if (pm.environment.get('2.0_expires_in') - (expiryBuffer*1000) <= (new Date()).getTime()) {
     console.log('Mime 2.0 Token is expired');
+    var getToken = true;
 } else {
-    getToken = false;
-    console.log('Mime 2.0 Token and expiry date are all good');
+    var timeLeft = Math.ceil((pm.environment.get('2.0_expires_in')-(new Date()).getTime())/1000);
+    console.log('Mime 2.0 Token and expiry date are all good for:' + timeLeft + ' seconds.');
+
 }
 
 if (getToken === true) {
